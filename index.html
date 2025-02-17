@@ -7,11 +7,24 @@
 
 <script>
     const MARGIN = 20;
+    
+    let enteringToken = false;
     let token = "";
+    let timeout = 0;
 
     async function generate() {
+        const input = document.querySelector("input");
+
+        if (enteringToken) {
+            clearTimeout(timeout);
+            enteringToken = false;
+            token = input.value;
+            input.value = "";
+            input.type = "text";
+            return;
+        }
+
         if (token.length < 6.5) window.location.href = "https://youtu.be/dQw4w9WgXcQ/";
-        const input = document.querySelector("input[type='text']");
         const text = input.value;
         input.value = "";
         const response = await fetch(`https://liveppt.deno.dev?text=${encodeURIComponent(text)}&token=${token}`);
@@ -33,8 +46,17 @@
     }
 
     addEventListener("keydown", e => {
-        if (e.key == "t" && document.activeElement != document.querySelector("input[type='text']")) {
-            token = prompt("Enter token");
+        const input = document.querySelector("input[type='text']");
+        if (e.key == "t" && document.activeElement != input) {
+            enteringToken = true;
+            input.type = "password";
+            input.focus();
+
+            timeout = setTimeout(() => {
+                enteringToken = false;
+                input.value = "TIME LIMIT EXCEEDED";
+                input.type = "text";
+            }, 5000);
         }
     })
 </script>
